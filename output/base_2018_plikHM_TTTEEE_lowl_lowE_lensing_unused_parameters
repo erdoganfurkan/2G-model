@@ -1,0 +1,6 @@
+# List of input/precision parameters passed
+# but not used (just for info)
+#
+write warnings = yes
+harmonic_verbose = 1
+fourier_verbose = 1
