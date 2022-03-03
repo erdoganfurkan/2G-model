@@ -1,5 +1,5 @@
-2G-model, modified CLASS code {#mainpage}
-==============================================
+2G-model, modified CLASS code 
+=============================
 
 Authors: Furkan Erdogan
 
