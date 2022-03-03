@@ -719,8 +719,9 @@ int input_read_parameters(
     pba->h = param2;
   }
   
-   /* reading of lambda_G*/
-  class_read_double("lambda_G",pba->lambda_G);
+   /* reading of lambda_G_rad & lambda_G_mat */
+  class_read_double("lambda_G_rad",pba->lambda_G_rad);
+  class_read_double("lambda_G_mat",pba->lambda_G_mat);
   
   /** - Omega_0_g (photons) and T_cmb */
   
@@ -738,7 +739,7 @@ int input_read_parameters(
              "In input file, you can only enter one of T_cmb, Omega_g or omega_g, choose one");
 
   if (class_none_of_three(flag1,flag2,flag3)) {
-    pba->Omega0_g = (4.*sigma_B/_c_*pow(pba->T_cmb,4.)) / (3.*_c_*_c_*1.e10*pba->h*pba->h/_Mpc_over_m_/_Mpc_over_m_/8./_PI_/_G_/pba->lambda_G/pba->lambda_G);
+    pba->Omega0_g = (4.*sigma_B/_c_*pow(pba->T_cmb,4.)) / (3.*_c_*_c_*1.e10*pba->h*pba->h/_Mpc_over_m_/_Mpc_over_m_/8./_PI_/_G_/pba->lambda_G_rad/pba->lambda_G_rad);
   }
   else {
 
@@ -746,18 +747,18 @@ int input_read_parameters(
       /** - Omega0_g = rho_g / rho_c0, each of them expressed in \f$ Kg/m/s^2 \f$*/
       /** - rho_g = (4 sigma_B / c) \f$ T^4 \f$*/
       /** - rho_c0 \f$ = 3 c^2 H_0^2 / (8 \pi G) \f$*/
-      pba->Omega0_g = (4.*sigma_B/_c_*pow(param1,4.)) / (3.*_c_*_c_*1.e10*pba->h*pba->h/_Mpc_over_m_/_Mpc_over_m_/8./_PI_/_G_/pba->lambda_G/pba->lambda_G);
+      pba->Omega0_g = (4.*sigma_B/_c_*pow(param1,4.)) / (3.*_c_*_c_*1.e10*pba->h*pba->h/_Mpc_over_m_/_Mpc_over_m_/8./_PI_/_G_/pba->lambda_G_rad/pba->lambda_G_rad);
       pba->T_cmb=param1;
     }
 
     if (flag2 == _TRUE_) {
       pba->Omega0_g = param2;
-      pba->T_cmb=pow(pba->Omega0_g * (3.*_c_*_c_*1.e10*pba->h*pba->h/_Mpc_over_m_/_Mpc_over_m_/8./_PI_/_G_/pba->lambda_G/pba->lambda_G) / (4.*sigma_B/_c_),0.25);
+      pba->T_cmb=pow(pba->Omega0_g * (3.*_c_*_c_*1.e10*pba->h*pba->h/_Mpc_over_m_/_Mpc_over_m_/8./_PI_/_G_/pba->lambda_G_rad/pba->lambda_G_rad) / (4.*sigma_B/_c_),0.25);
     }
 
     if (flag3 == _TRUE_) {
       pba->Omega0_g = param3/pba->h/pba->h;
-      pba->T_cmb = pow(pba->Omega0_g * (3.*_c_*_c_*1.e10*pba->h*pba->h/_Mpc_over_m_/_Mpc_over_m_/8./_PI_/_G_/pba->lambda_G/pba->lambda_G) / (4.*sigma_B/_c_),0.25);
+      pba->T_cmb = pow(pba->Omega0_g * (3.*_c_*_c_*1.e10*pba->h*pba->h/_Mpc_over_m_/_Mpc_over_m_/8./_PI_/_G_/pba->lambda_G_rad/pba->lambda_G_rad) / (4.*sigma_B/_c_),0.25);
     }
   }
 

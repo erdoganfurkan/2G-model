@@ -49,7 +49,8 @@ struct background
 
   double H0; /**< \f$ H_0 \f$: Hubble parameter (in fact, [\f$H_0/c\f$]) in \f$ Mpc^{-1} \f$ */
 
-  double lambda_G; /**  G_new = lambda_G^2*G_Newton */
+  double lambda_G_rad; /** Such that G_new_rad = lambda_G^2_rad*G_Newton */
+  double lambda_G_mat; /** Such that G_new_mat = lambda_G^2_mat*G_Newton */  
   
   double Omega0_g; /**< \f$ \Omega_{0 \gamma} \f$: photons */
 

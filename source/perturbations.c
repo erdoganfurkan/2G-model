@@ -5173,7 +5173,7 @@ int perturb_initial_conditions(struct precision * ppr,
     fraccdm = 1.-fracb;
 
     /* Omega_m(t_i) / Omega_r(t_i) */
-    rho_m_over_rho_r = rho_m/rho_r;
+    om = a*rho_m*pba->lambda_G_rad/sqrt(rho_r)/pow(pba->lambda_G_mat,2);
 
     /* omega = Omega_m(t_i) a(t_i) H(t_i) / sqrt(Omega_r(t_i))
        = Omega_m(t_0) a(t_0) H(t_0) / sqrt(Omega_r(t_0)) assuming rho_m in a-3 and rho_r in a^-4
@@ -5184,7 +5184,7 @@ int perturb_initial_conditions(struct precision * ppr,
        the universe is
        a = [H(t_0)^2 Omega_m(t_0) a(t_0)^3 / 4] x [tau^2 + 4 tau / omega]
     */
-    om = a*rho_m/sqrt(rho_r);
+    om = a*rho_m*pba->lambda_G_rad/sqrt(rho_r)/pba->lambda_G_mat;
 
     /* (k tau)^2, (k tau)^3 */
     ktau_two=k*k*tau*tau;
@@ -8427,7 +8427,7 @@ int perturb_derivs(double tau,
   a = pvecback[pba->index_bg_a];
   a2 = a*a;
   a_prime_over_a = pvecback[pba->index_bg_H] * a;
-  R = 4./3. * pvecback[pba->index_bg_rho_g]/pvecback[pba->index_bg_rho_b];
+  R = 4./3. * pvecback[pba->index_bg_rho_g]*pow(pba->lambda_G_mat,2)/pvecback[pba->index_bg_rho_b]/pow(pba->lambda_G_rad,2);
 
   if((pba->has_idm_dr==_TRUE_)){
     Sinv = 4./3. * pvecback[pba->index_bg_rho_idr]/ pvecback[pba->index_bg_rho_idm_dr];
@@ -8485,7 +8485,7 @@ int perturb_derivs(double tau,
       H0 = pba->H0 * _c_ / _Mpc_over_m_;
 
       //Computation of Nnow in SI units
-      Nnow = 3.*H0*H0*pba->Omega0_b*(1.-pth->YHe)/(8.*_PI_*_G_*pba->lambda_G*pba->lambda_G*_m_H_);
+      Nnow = 3.*H0*H0*pba->Omega0_b*(1.-pth->YHe)/(8.*_PI_*_G_*pba->lambda_G_mat*pba->lambda_G_mat*_m_H_);
 
       // total amount of hydrogen today
       n_H = (pba->a_today/a)*(pba->a_today/a)*(pba->a_today/a)* Nnow;
@@ -9530,7 +9530,7 @@ int perturb_tca_slip_and_shear(double * y,
   a_prime_over_a = pvecback[pba->index_bg_H] * a;
   a_primeprime_over_a = pvecback[pba->index_bg_H_prime] * a + 2. * a_prime_over_a * a_prime_over_a;
   //z = pba->a_today-1.;
-  R = 4./3. * pvecback[pba->index_bg_rho_g]/pvecback[pba->index_bg_rho_b];
+  R = 4./3. * pvecback[pba->index_bg_rho_g]*pow(pba->lambda_G_mat,2)/pvecback[pba->index_bg_rho_b]/pow(pba->lambda_G_rad,2);
   s2_squared = 1.-3.*pba->K/k2;
 
   /** - --> (a) define short-cut notations for the scalar perturbations */
