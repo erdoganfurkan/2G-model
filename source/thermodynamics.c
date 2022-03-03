@@ -1645,7 +1645,7 @@ int thermodynamics_helium_from_bbn(
 
   /** WARNING: The omega_b written in the file is using G=6.67e-11 in its definition. This is why we must divide our omega_b here by lambda_G_mat^2
 so both omega_b match. */
-  omega_b=pba->Omega0_b*pba->h*pba->h/pba->lambda_G_mat/pba->lambda_G_mat;
+  omega_b=pba->Omega0_b*pba->h*pba->h/pba->lambda_G_mat_z_0/pba->lambda_G_mat_z_0;
 
   class_test_except(omega_b < omegab[0],
                     pth->error_message,
@@ -1771,7 +1771,7 @@ int thermodynamics_onthespot_energy_injection(
                                          +pow(log((preco->annihilation_zmin+1.)/(preco->annihilation_zmax+1.)),2)));
   }
 
-  rho_cdm_today = pow(pba->H0*_c_/_Mpc_over_m_,2)*3/8./_PI_/_G_/pba->lambda_G_mat/pba->lambda_G_mat*(pba->Omega0_idm_dr+pba->Omega0_cdm)*_c_*_c_; /* energy density in J/m^3 */
+  rho_cdm_today = pow(pba->H0*_c_/_Mpc_over_m_,2)*3/8./_PI_/_G_/pba->lambda_G_mat_z_0/pba->lambda_G_mat_z_0*(pba->Omega0_idm_dr+pba->Omega0_cdm)*_c_*_c_; /* energy density in J/m^3 */
 
   u_min = (1+z)/(1+preco->annihilation_z_halo);
 
@@ -1821,7 +1821,7 @@ int thermodynamics_energy_injection(
     if (preco->has_on_the_spot == _FALSE_) {
 
       /* number of hydrogen nuclei today in m**-3 */
-      nH0 = 3.*preco->H0*preco->H0*pba->Omega0_b/(8.*_PI_*_G_*pba->lambda_G_mat*pba->lambda_G_mat*_m_H_)*(1.-preco->YHe);
+      nH0 = 3.*preco->H0*preco->H0*pba->Omega0_b/(8.*_PI_*_G_*pba->lambda_G_mat_z_0*pba->lambda_G_mat_z_0*_m_H_)*(1.-preco->YHe);
 
       /* factor = c sigma_T n_H(0) / (H(0) \sqrt(Omega_m)) (dimensionless) */
       factor = _sigma_ * nH0 / pba->H0 * _Mpc_over_m_ / sqrt(pba->Omega0_b+pba->Omega0_cdm+pba->Omega0_idm_dr);
@@ -3249,7 +3249,7 @@ int thermodynamics_recombination_with_hyrec(
   preco->H0 = pba->H0 * _c_ / _Mpc_over_m_;
   /* preco->H0 in inverse seconds (while pba->H0 is [H0/c] in inverse Mpcs) */
   preco->YHe = pth->YHe;
-  preco->Nnow = 3.*preco->H0*preco->H0*pba->Omega0_b*(1.-preco->YHe)/(8.*_PI_*_G_*pba->lambda_G_mat*pba->lambda_G_mat*_m_H_);
+  preco->Nnow = 3.*preco->H0*preco->H0*pba->Omega0_b*(1.-preco->YHe)/(8.*_PI_*_G_*pba->lambda_G_mat_z_0*pba->lambda_G_mat_z_0*_m_H_);
   /* energy injection parameters */
   preco->annihilation = pth->annihilation;
   preco->has_on_the_spot = pth->has_on_the_spot;
@@ -3487,7 +3487,7 @@ int thermodynamics_recombination_with_recfast(
   mu_H = 1./(1.-preco->YHe);
   //mu_T = _not4_ /(_not4_ - (_not4_-1.)*preco->YHe); /* recfast 1.4*/
   preco->fHe = preco->YHe/(_not4_ *(1.-preco->YHe)); /* recfast 1.4 */
-  preco->Nnow = 3.*preco->H0*preco->H0*OmegaB/(8.*_PI_*_G_*pba->lambda_G_mat*pba->lambda_G_mat*mu_H*_m_H_);
+  preco->Nnow = 3.*preco->H0*preco->H0*OmegaB/(8.*_PI_*_G_*pba->lambda_G_mat_z_0*pba->lambda_G_mat_z_0*mu_H*_m_H_);
   pth->n_e = preco->Nnow;
 
   /* energy injection parameters */

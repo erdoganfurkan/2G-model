@@ -50,7 +50,19 @@ struct background
   double H0; /**< \f$ H_0 \f$: Hubble parameter (in fact, [\f$H_0/c\f$]) in \f$ Mpc^{-1} \f$ */
 
   double lambda_G_rad; /** Such that G_new_rad = lambda_G^2_rad*G_Newton */
-  double lambda_G_mat; /** Such that G_new_mat = lambda_G^2_mat*G_Newton */  
+  
+  double lambda_G_mat;
+
+  double lambda_G_mat_inf; /** Such that G_mat = lambda_G_mat_inf^2*G_Newton at z >= z_t_mat + delta_z/2 */
+
+  double lambda_G_mat_0; /** Such that G = lambda_G_mat_0^2*G_Newton at z <= z_t_mat - delta_z/2 */
+
+  double lambda_G_mat_z_0; /** Value of lambda_G_mat at z = 0. May not be lambda_G_mat_0 if z_t_mat < 0 or delta_z>2*z_t_mat (in that case G_mat is still varying). */
+
+  double z_t; /** Redshift at which the transition of lambda_G_mat occurs */
+
+  double delta_z; /** Redshift "taken" for the transition of lambda_G to be made */
+   
   
   double Omega0_g; /**< \f$ \Omega_{0 \gamma} \f$: photons */
 
@@ -556,7 +568,8 @@ extern "C" {
   int background_output_budget(
                struct background* pba
                );
-
+  int lambda_G_mat_at_z(struct background *pba, double z, double *lambda_G_mat);
+  
 #ifdef __cplusplus
 }
 #endif

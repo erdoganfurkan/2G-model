@@ -719,9 +719,25 @@ int input_read_parameters(
     pba->h = param2;
   }
   
-   /* reading of lambda_G_rad & lambda_G_mat */
+   /** Parameters needed for the G variation */
+  /** lambda_G_rad */
   class_read_double("lambda_G_rad",pba->lambda_G_rad);
-  class_read_double("lambda_G_mat",pba->lambda_G_mat);
+  /** lambda_G_mat_inf */
+  class_read_double("lambda_G_mat_inf",pba->lambda_G_mat_inf);
+  /** lambda_G_mat_0 */
+  class_read_double("lambda_G_mat_0",pba->lambda_G_mat_0);
+  /** z_t */
+  class_read_double("z_t",pba->z_t);
+  /** delta_z */
+  class_read_double("delta_z",pba->delta_z);
+
+  /** This is the value of lambda_G(z) at z = 0.
+  It may not be lambda_G_0 if the user sets z_t < 0 or if delta_z>2*z_t (in that case G is still varying at z = 0). */
+  double lambda_G_mat_z_0;
+  
+  class_call(lambda_G_mat_at_z(pba,0,&lambda_G_mat_z_0),errmsg,errmsg);
+  pba->lambda_G_mat_z_0 = lambda_G_mat_z_0;
+  
   
   /** - Omega_0_g (photons) and T_cmb */
   
@@ -3177,6 +3193,12 @@ int input_default_params(
   pba->h = 0.67556;
   pba->H0 = pba->h * 1.e5 / _c_;
   pba->T_cmb = 2.7255;
+  pba->lambda_G_rad = 1.;
+  pba->lambda_G_mat_inf = 1.;
+  pba->lambda_G_mat_0 = 1.;
+  pba->lambda_G_mat_z_0 = 1.;
+  pba->z_t = 0.;
+  pba->delta_z=1.;
   pba->Omega0_g = (4.*sigma_B/_c_*pow(pba->T_cmb,4.)) / (3.*_c_*_c_*1.e10*pba->h*pba->h/_Mpc_over_m_/_Mpc_over_m_/8./_PI_/_G_);
   pba->Omega0_ur = 3.046*7./8.*pow(4./11.,4./3.)*pba->Omega0_g;
   pba->Omega0_idr = 0.0;

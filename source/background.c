@@ -224,6 +224,66 @@ int background_tau_of_z(
   return _SUCCESS_;
 }
 
+/** 
+	This function returns the value of lambda_G_mat(z).
+	This function assumes that lambda_G_mat is equal to :
+	lambda_G_mat_0 before z_t-delta_z/2
+	lambda_G_mat_inf after z_t+delta_z/2
+	Between z_t-delta_z/2 and z_t+delta_z/2, the two values lambda_G_mat_0 and lambda_G_mat_inf are joined by a 3rd order polynomial function of z.
+*/
+int lambda_G_mat_at_z(struct background *pba, double z, double *lambda_G_mat) {
+	if (z<=pba->z_t-pba->delta_z/2) {
+		*lambda_G_mat = pba->lambda_G_mat_0;
+	}
+	else if (z>=pba->z_t+pba->delta_z/2) {
+		*lambda_G_mat = pba->lambda_G_mat_inf;
+	}
+	else {
+		double a = 2*(pba->lambda_G_mat_0-pba->lambda_G_mat_inf)/pow(pba->delta_z,3);
+		double b = -6*pba->z_t*(pba->lambda_G_mat_0-pba->lambda_G_mat_inf)/pow(pba->delta_z,3);
+		double c = 6*(pba->lambda_G_mat_0-pba->lambda_G_mat_inf)*(pba->z_t*pba->z_t-pba->delta_z*pba->delta_z/4.)/pow(pba->delta_z,3);
+		double d = pba->lambda_G_mat_0-0.5*(pba->lambda_G_mat_0-pba->lambda_G_mat_inf)*(4*pow(pba->z_t,3)-3*pba->z_t*pba->delta_z*pba->delta_z+pow(pba->delta_z,3))/pow(pba->delta_z,3);
+		*lambda_G_mat = a*z*z*z+b*z*z+c*z+d;
+	}
+	return _SUCCESS_;
+}
+
+/**
+	This function returns the value of rho_Lambda at z (in CLASS units) using Sultana's formula to calculate Lambda (cosmological constant)
+	as a function of \dot{G_{mat}}. 
+**/
+double rho_Lambda_at_z(struct background *pba, double z) {
+	if (z <= pba->z_t-pba->delta_z/2) {
+		return pba->Omega0_lambda * pow(pba->H0,2);
+	}
+	else {
+		double Lambda = pba->Omega0_lambda * pow(pba->H0,2);
+		double z_m = pba->z_t-pba->delta_z/2;
+		double z_p;
+
+		if (z >= pba->z_t+pba->delta_z/2) {
+			z_p = pba->z_t+pba->delta_z/2;
+		}
+		else {
+			z_p = z;
+		}
+
+		double a = 2*(pba->lambda_G_mat_0-pba->lambda_G_mat_inf)/pow(pba->delta_z,3);
+		double b = -6*pba->z_t*(pba->lambda_G_mat_0-pba->lambda_G_mat_inf)/pow(pba->delta_z,3);
+		double c = 6*(pba->lambda_G_mat_0-pba->lambda_G_mat_inf)*(pba->z_t*pba->z_t-pba->delta_z*pba->delta_z/4.)/pow(pba->delta_z,3);
+		double d = pba->lambda_G_mat_0-0.5*(pba->lambda_G_mat_0-pba->lambda_G_mat_inf)*(4*pow(pba->z_t,3)-3*pba->z_t*pba->delta_z*pba->delta_z+pow(pba->delta_z,3))/pow(pba->delta_z,3);
+
+		Lambda = Lambda - 2*(pba->Omega0_b+pba->Omega0_cdm)*pow(pba->H0,2)/pow(pba->lambda_G_mat_z_0,2)*
+				(1/3.*a*a*(pow(z_p,9)-pow(z_m,9))+(9*a*a+5*a*b)/8*(pow(z_p,8)-pow(z_m,8))
+					+(9*a*a+15*a*b+4*a*c+2*b*b)/7*(pow(z_p,7)-pow(z_m,7))+(a*a+5*a*b+4*a*c+2*b*b+a*d+b*c)/2*(pow(z_p,6)-pow(z_m,6))
+					+(5*a*b+12*a*c+6*b*b+9*a*d+9*b*c+2*b*d+c*c)/5*(pow(z_p,5)-pow(z_m,5))+(4*a*c+2*b*b+9*a*d+9*b*c+6*b*d+3*c*c+c*d)/4*(pow(z_p,4)-pow(z_m,4))
+					+(a*d+b*c+2*b*d+c*c+c*d)*(pow(z_p,3)-pow(z_m,3))+(2*b*d+c*c+3*c*d)/2*(z_p*z_p-z_m*z_m)+c*d*(z_p-z_m));
+
+		return Lambda;
+	}	
+}
+
+
 /**
  * Background quantities at given \f$ a \f$.
  *
@@ -280,6 +340,9 @@ int background_functions(
      p_prime = a_prime_over_a * dp_dloga = a_prime_over_a * Sum [ (w_prime/a_prime_over_a -3(1+w)w)rho].
      Note: The scalar field contribution must be added in the end, as an exception!*/
   double dp_dloga;
+  
+  /* Value of lambda_G_mat at current z */
+  double lambda_G_mat;
 
   /** - initialize local variables */
   a = pvecback_B[pba->index_bi_a];
@@ -296,6 +359,10 @@ int background_functions(
 
   /** - pass value of \f$ a\f$ to output */
   pvecback[pba->index_bg_a] = a;
+  
+  /** Compute the value of lambda_G_mat at given z */
+  lambda_G_mat_at_z(pba,1/a_rel-1,&lambda_G_mat);
+  pba->lambda_G_mat = lambda_G_mat;
 
   /** - compute each component's density and pressure */
 
@@ -306,14 +373,14 @@ int background_functions(
   dp_dloga += -(4./3.) * pvecback[pba->index_bg_rho_g];
   rho_r += pvecback[pba->index_bg_rho_g];
   /* baryons */
-  pvecback[pba->index_bg_rho_b] = pba->Omega0_b * pow(pba->H0,2) / pow(a_rel,3);
+  pvecback[pba->index_bg_rho_b] = pba->Omega0_b * pow(pba->H0,2) * pow(lambda_G_mat/pba->lambda_G_mat_z_0,2) / pow(a_rel,3);
   rho_tot += pvecback[pba->index_bg_rho_b];
   p_tot += 0;
   rho_m += pvecback[pba->index_bg_rho_b];
 
   /* cdm */
   if (pba->has_cdm == _TRUE_) {
-    pvecback[pba->index_bg_rho_cdm] = pba->Omega0_cdm * pow(pba->H0,2) / pow(a_rel,3);
+    pvecback[pba->index_bg_rho_cdm] = pba->Omega0_cdm * pow(pba->H0,2)* pow(lambda_G_mat/pba->lambda_G_mat_z_0,2) / pow(a_rel,3);
     rho_tot += pvecback[pba->index_bg_rho_cdm];
     p_tot += 0.;
     rho_m += pvecback[pba->index_bg_rho_cdm];
@@ -399,7 +466,7 @@ int background_functions(
 
   /* Lambda */
   if (pba->has_lambda == _TRUE_) {
-    pvecback[pba->index_bg_rho_lambda] = pba->Omega0_lambda * pow(pba->H0,2);
+    pvecback[pba->index_bg_rho_lambda] = rho_Lambda_at_z(pba,1/a_rel-1);
     rho_tot += pvecback[pba->index_bg_rho_lambda];
     p_tot -= pvecback[pba->index_bg_rho_lambda];
   }
@@ -434,7 +501,7 @@ int background_functions(
 
   /* interacting dark matter */
   if (pba->has_idm_dr == _TRUE_) {
-    pvecback[pba->index_bg_rho_idm_dr] = pba->Omega0_idm_dr * pow(pba->H0,2) / pow(a_rel,3);
+    pvecback[pba->index_bg_rho_idm_dr] = pba->Omega0_idm_dr * pow(pba->H0,2)* pow(lambda_G_mat/pba->lambda_G_mat_z_0,2) / pow(a_rel,3);
     rho_tot += pvecback[pba->index_bg_rho_idm_dr];
     p_tot += 0.;
     rho_m += pvecback[pba->index_bg_rho_idm_dr];
@@ -668,7 +735,7 @@ int background_init(
              limit, i.e. assuming T_nu=(4/11)^1/3 T_gamma (this comes
              from the definition of N_eff) */
           rho_nu_rel = 56.0/45.0*pow(_PI_,6)*pow(4.0/11.0,4.0/3.0)*_G_*pba->lambda_G_rad*pba->lambda_G_rad/pow(_h_P_,3)/pow(_c_,7)*
-            pow(_Mpc_over_m_,2)*pow(pba->T_cmb*_k_B_,4); /** We assume the interaction with the matter part, we'll study radiation part in a second time*/
+            pow(_Mpc_over_m_,2)*pow(pba->T_cmb*_k_B_,4); /** We assume the interaction with the radiation part */
 
           printf(" -> ncdm species i=%d sampled with %d (resp. %d) points for purpose of background (resp. perturbation) integration. In the relativistic limit it gives Delta N_eff = %g\n",
                  n_ncdm+1,
@@ -1464,7 +1531,7 @@ int background_ncdm_init(
         pba->dlnf0_dlnq_ncdm[k][index_q] = q/f0*df0dq;
     }
 
-    pba->factor_ncdm[k]=pba->deg_ncdm[k]*4*_PI_*pow(pba->T_cmb*pba->T_ncdm[k]*_k_B_,4)*8*_PI_*_G_*pba->lambda_G_mat*pba->lambda_G_mat
+    pba->factor_ncdm[k]=pba->deg_ncdm[k]*4*_PI_*pow(pba->T_cmb*pba->T_ncdm[k]*_k_B_,4)*8*_PI_*_G_
       /3./pow(_h_P_/2./_PI_,3)/pow(_c_,7)*_Mpc_over_m_*_Mpc_over_m_;
 
     /* If allocated, deallocate interpolation table:  */
@@ -1968,6 +2035,9 @@ int background_initial_conditions(
   double rho_fld_today;
   double w_fld,dw_over_da_fld,integral_fld;
 
+  /** Value of lambda_G_mat at z=a_today/a-1 */
+  double lambda_G_mat;
+  
   /** - fix initial value of \f$ a \f$ */
   a = ppr->a_ini_over_a_today_default * pba->a_today;
 
@@ -1976,6 +2046,8 @@ int background_initial_conditions(
        This could happen for some WDM models.
   */
 
+  lambda_G_mat_at_z(pba,pba->a_today/a-1.0,&lambda_G_mat);
+  
   if (pba->has_ncdm == _TRUE_) {
 
     for (counter=0; counter < _MAX_IT_; counter++) {
