@@ -618,7 +618,7 @@ int perturb_init(
     }
   }
 
-  class_test((pba->h > _h_BIG_) || (pba->h < _h_SMALL_),
+  /**class_test((pba->h > _h_BIG_) || (pba->h < _h_SMALL_),
              ppt->error_message,
              "Your value of pba->h=%e is out of the bounds [%e , %e] and could cause a crash of the perturbation ODE integration. If you want to force this barrier, you may comment it out in perturbation.c",
              pba->h,
@@ -630,7 +630,7 @@ int perturb_init(
              "Your value of omega_b=%e is out of the bounds [%e , %e] and could cause a crash of the perturbation ODE integration. If you want to force this barrier, you may comment it out in perturbation.c",
              pba->Omega0_b*pba->h*pba->h,
              _omegab_SMALL_,
-             _omegab_BIG_); 
+             _omegab_BIG_); */
 
   /** - initialize all indices and lists in perturbs structure using perturb_indices_of_perturbs() */
 
@@ -8485,7 +8485,7 @@ int perturb_derivs(double tau,
       H0 = pba->H0 * _c_ / _Mpc_over_m_;
 
       //Computation of Nnow in SI units
-      Nnow = 3.*H0*H0*pba->Omega0_b*(1.-pth->YHe)/(8.*_PI_*_G_*_m_H_);
+      Nnow = 3.*H0*H0*pba->Omega0_b*(1.-pth->YHe)/(8.*_PI_*_G_*pba->lambda_G*pba->lambda_G*_m_H_);
 
       // total amount of hydrogen today
       n_H = (pba->a_today/a)*(pba->a_today/a)*(pba->a_today/a)* Nnow;

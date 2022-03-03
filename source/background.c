@@ -667,7 +667,7 @@ int background_init(
              density of one neutrino in the instantaneous decoupling
              limit, i.e. assuming T_nu=(4/11)^1/3 T_gamma (this comes
              from the definition of N_eff) */
-          rho_nu_rel = 56.0/45.0*pow(_PI_,6)*pow(4.0/11.0,4.0/3.0)*_G_/pow(_h_P_,3)/pow(_c_,7)*
+          rho_nu_rel = 56.0/45.0*pow(_PI_,6)*pow(4.0/11.0,4.0/3.0)*_G_*pba->lambda_G*pba->lambda_G/pow(_h_P_,3)/pow(_c_,7)*
             pow(_Mpc_over_m_,2)*pow(pba->T_cmb*_k_B_,4);
 
           printf(" -> ncdm species i=%d sampled with %d (resp. %d) points for purpose of background (resp. perturbation) integration. In the relativistic limit it gives Delta N_eff = %g\n",
@@ -1464,7 +1464,7 @@ int background_ncdm_init(
         pba->dlnf0_dlnq_ncdm[k][index_q] = q/f0*df0dq;
     }
 
-    pba->factor_ncdm[k]=pba->deg_ncdm[k]*4*_PI_*pow(pba->T_cmb*pba->T_ncdm[k]*_k_B_,4)*8*_PI_*_G_
+    pba->factor_ncdm[k]=pba->deg_ncdm[k]*4*_PI_*pow(pba->T_cmb*pba->T_ncdm[k]*_k_B_,4)*8*_PI_*_G_*pba->lambda_G*pba->lambda_G
       /3./pow(_h_P_/2./_PI_,3)/pow(_c_,7)*_Mpc_over_m_*_Mpc_over_m_;
 
     /* If allocated, deallocate interpolation table:  */

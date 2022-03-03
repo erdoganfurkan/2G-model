@@ -49,6 +49,8 @@ struct background
 
   double H0; /**< \f$ H_0 \f$: Hubble parameter (in fact, [\f$H_0/c\f$]) in \f$ Mpc^{-1} \f$ */
 
+  double lambda_G; /**  G_new = lambda_G^2*G_Newton */
+  
   double Omega0_g; /**< \f$ \Omega_{0 \gamma} \f$: photons */
 
   double T_cmb; /**< \f$ T_{cmb} \f$: current CMB temperature in Kelvins */
