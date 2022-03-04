@@ -26,7 +26,7 @@ Branches
 You can find three branches in this git.
 1. Master branch: modified CLASS code to integrate our 2G-model.
 2. 2G_no-transition branch: 2G model but without the transition on the G_matter part. The two G are real constants.
-3. Variying_G branch: Only one G considered constant but we can change its value.
+3. Varying_G branch: Only one G considered constant but we can change its value.
 
 Using the code
 --------------
